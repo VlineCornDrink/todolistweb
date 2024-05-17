@@ -1,0 +1,163 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>ToDoList</title>
+                <style>
+                    /* 전체적인 코드 꾸미기 */
+                    body {
+                        font-family: Arial, sans-serif;
+                        background-color: #E59866;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    
+                    .container {
+                        max-width: 600px;
+                        margin: 20px auto;
+                        padding: 20px;
+                        background-color: #F9EBEA;
+                        border-radius: 10px;
+                        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                    }
+                    
+                    h1 {
+                        text-align: center;
+                        color: #1F618D;
+                        margin-bottom: 20px;
+                    }
+                    /* 할일 추가 버튼 및 텍스트 꾸미기 */
+                    .form-group1 {
+                        text-align: center;
+                        margin-bottom: 20px;
+                    }
+                    
+                    .form-group1 input[type="text"] {
+                        width: 100%;
+                        padding: 10px;
+                        border: 1px solid #ccc;
+                        border-radius: 5px;
+                        margin-bottom: 10px;
+                    }
+                    
+                    .form-group1 button[type="submit"] {
+                        padding: 10px 20px;
+                        background-color: #007bff;
+                        color: white;
+                        border: none;
+                        border-radius: 5px;
+                        cursor: pointer;
+                    }
+                    
+                    /* 할일 목록 (텍스트 + 버튼 포함 )*/
+                    .todo-item {
+                        background-color: #fff;
+                        padding: 10px;
+                        border-bottom: 1px solid #ccc;
+                        margin-bottom: 10px;
+                        border-radius: 5px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                    }
+                    
+                    /* 할일 내용 */
+                    .todo-content {
+                        flex: 1;
+                        padding: 13px;
+                        border-radius: 9px;
+                        background-color: #FDE0D0;
+                        color: #1F618D;
+                        border-left: 5px solid #7D3C98;
+                    }
+              
+                    
+                    
+                    /* 삭제 버튼 + 완료 버튼 */
+                    .btn {
+                        display: flex;
+                        align-items: center;
+                    }
+                    
+              
+                    
+                    .btn form button {
+                        margin-left: 10px;
+                    }
+                    
+                    /* 완료 버튼 */
+                    .completed-btn {
+                        border: none;
+                        background: none;
+                        padding: 0;
+                        margin: 0;
+                    }
+                    /* 이미지 크기 조정 */
+                    .completed-btn img,
+                    .delete-btn img {
+                        width: 30px; /* 이미지의 가로 크기 */
+                        height: 30px; /* 이미지의 세로 크기 */
+                        padding-top:5px;
+                    }
+
+                    
+                    /* 삭제 버튼 */
+                    .delete-btn {
+                        padding: 8px 10px;
+                        background-color: #D98880;
+                        border: none;
+                        border-radius: 5px;
+                        color: white;
+                        font-weight: bold;
+                        cursor: pointer;
+                        transition: background-color 0.3s ease;
+                    }
+                    
+                    .delete-btn:hover {
+                        background-color: #C0392B;
+                    }
+                    
+            
+                </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>ToDoList</h1>
+            <div class="form-group1">
+                <form action="./create_task" method="POST">
+                    {% csrf_token %}
+                    <input id="whattodo" name="whattodo" type="text" placeholder="할일을 입력하세요">
+                        <button type="submit" >할일 추가!!</button>
+                        
+                </form>
+            </div>
+            <div class="form-group2">
+                {% for task in tasks %}
+                <div class="todo-item">
+                    <div class="todo-content">{{ task.content }}</div>
+                    <div class="btn">
+                        <form  action="./complete_task" method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="complete" value="{{task.id}}">
+                                <button type="submit" class="completed-btn">
+                                    {%  if task.iscompleted  %}
+                                    <img src="{% static '/img/checked.png' %}" alt="checkbox">
+                                        {%  else  %}
+                                        <img src="{% static '/img/default.png' %}" alt="checkbox">
+                                            {% endif %}
+                                        </button>
+                        </form>
+                        <form action="./delete_task" method="GET">
+                            <input type="hidden" name="delete" value="{{ task.id }}">
+                                <button type="submit" class="delete-btn">삭제</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </body>
+</html>
+

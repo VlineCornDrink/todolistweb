@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  # MySQL 데이터베이스 서비스 정의
+  db:
+    # MySQL 가장 최신 이미지를 사용
+    image: mysql:latest
+    # 환경 변수를 사용하여 MySQL 설정을 지정
+    environment:
+      MYSQL_ROOT_PASSWORD: root  # MySQL 루트 사용자의 비밀번호를 'root'로 설정
+      MYSQL_DATABASE: django-db   # 'django-db'라는 데이터베이스를 생성
+      MYSQL_USER: django         # MySQL에 접근할 사용자 이름을 'django'로 설정
+      MYSQL_PASSWORD: django     # 'django' 사용자의 비밀번호를 'django'로 설정
+    # 컨테이너 이름 설정
+    container_name : data
+    # 컨테이너가 시작될 때 실행할 명령어를 지정
+    command:
+      - --character-set-server=utf8mb4  # MySQL 서버의 문자 집합을 UTF-8로 설정합니다.
+      - --collation-server=utf8mb4_unicode_ci  # MySQL 서버의 콜레이션을 UTF-8로 설정합니다.
+    # mac m1 환경에서 docker를 사용하여 mysql 이미지 다운시 에러 발생하여 추가한 코드
+    platform: linux/amd64
+    # 호스트의 3305번 포트를 컨테이너의 3306번 포트와 연결합니다.
+    ports:
+      - "3305:3306"
+    # 호스트의 MySQL 데이터를 컨테이너 내부로 볼륨
+    volumes:
+      - /Users/k.j.o/University/docker_project/todolist_website/mysql-data:/var/lib/mysql
+    # 컨테이너가 종료되면 항상 다시 시작
+    restart: always
+    
+  # Django 웹 애플리케이션 서비스 정의
+  web:
+    # 현재 디렉토리에 있는 Dockerfile을 사용하여 이미지를 빌드
+    build: .
+    # 컨테이너 이름 설정
+    container_name : ws
+    # Django 서버 시작을 위한 명령어를 지정
+    command : bash -c "
+        python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    # 호스트의 현재 디렉토리를 컨테이너의 /app 디렉토리와 연결
+    volumes:
+      - .:/app
+    # 호스트의 8000번 포트를 컨테이너의 8000번 포트와 연결
+    ports:
+      - "8000:8000"
+    # 컨테이너가 종료되면 항상 다시 시작
+    restart: always
+    # db 서비스가 먼저 시작되도록 설정
+    depends_on:
+      - db
